@@ -119,7 +119,9 @@ def psd(trials, sample_rate):
     nchannels = trials.shape[1]
     nsamples = trials.shape[2]
     
-    trials_PSD = np.zeros((ntrials, nchannels, 101))
+    nsample_psd = (nsamples // 2) + 1
+    
+    trials_PSD = np.zeros((ntrials, nchannels, nsample_psd))
 
     # Iterate over trials and channels
     for trial in range(ntrials):
@@ -215,7 +217,6 @@ def bandpass(trials, lo, hi, sample_rate):
     ntrials = trials.shape[0]
     nchannels = trials.shape[1]
     nsamples = trials.shape[2]
-    print(ntrials)
     trials_filt = np.zeros((ntrials, nchannels, nsamples))
     for i in range(ntrials):
         trials_filt[i,:,:] = scipy.signal.filtfilt(a, b, trials[i,:,:], axis=1)
