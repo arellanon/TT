@@ -127,7 +127,7 @@ def psd(trials, sample_rate):
     for trial in range(ntrials):
         for ch in range(nchannels):
             # Calculate the PSD
-            (PSD, freqs) = mlab.psd(trials[trial,ch,:], NFFT=int(nsamples), Fs=sample_rate)
+            (PSD, freqs) = mlab.psd(trials[trial, ch,:], NFFT=int(nsamples), Fs=sample_rate)
             trials_PSD[trial, ch, :] = PSD.ravel()
                 
     return trials_PSD, freqs
