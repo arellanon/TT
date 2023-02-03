@@ -14,6 +14,9 @@ def main():
     # SciPy.io.loadmat does not deal well with Matlab structures, resulting in lots of
     # extra dimensions in the arrays. This makes the code a bit more cluttered
     
+    path = "data/"
+    filename = "test2"
+    
     sample_rate = m['nfo']['fs'][0][0][0][0]
     EEG = m['cnt'].T
     nchannels, nsamples = EEG.shape
@@ -24,8 +27,32 @@ def main():
     labels = np.zeros((1, nsamples), int)
     labels[0, event_onsets] = event_codes
     
-    cl_lab = [s[0] for s in m['nfo']['classes'][0][0][0]]
-
+    cl_lab = [s[0] for s in m['nfo']['classes'][0][0][0]]   
+    freq=sample_rate
+    #Se carga la matriz de datos
+    #data_cnt=data_cnt.transpose()
+    #print("data_cnt: ", data_cnt.shape)
+    
+    EEG = EEG*0.1
+    
+    #Se carga los nombre de los caneles
+    info = mne.create_info(channel_names, freq, 'eeg')
+    raw = mne.io.RawArray(EEG, info, first_samp=0, copy='auto', verbose='critical')
+    raw.save(path + filename + "_eeg.fif", overwrite=True)
+    
+    #print((event_onsets[0]))
+    #print((event_codes[0])+1)
+    event_onsets = event_onsets[0]
+    event_codes = event_codes[0]
+    event_codes = (event_codes + 1) / 2
+    
+    events = np.zeros((len(event_onsets) , 3), int)
+    events[:, 0] = event_onsets.astype(int)
+    events[:, 2] = event_codes.astype(int)
+    
+    mne.write_events(path + filename + "-eve.fif", events)
+    
+    """
     nclasses = len(cl_lab)
     nevents = len(event_onsets)
         
@@ -57,6 +84,7 @@ def main():
     #sample_rate
     #cl_lab
     #channel_names
+    """
     
     """
     #convertir de uV -> V

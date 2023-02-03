@@ -14,9 +14,11 @@ from mne.datasets import eegbci
 from mne import Epochs, pick_types, events_from_annotations
 
 def main():
-    trials, sample_rate, cl_lab, channel_names = get_data()
+    #trials, sample_rate, cl_lab, channel_names = get_data()
     #trials, sample_rate, cl_lab, channel_names = get_data2()
     #trials, sample_rate, cl_lab, channel_names = get_data3()
+    trials, sample_rate, cl_lab, channel_names = get_data4( "data/", "test2")
+    
     cl1 = cl_lab[0]
     cl2 = cl_lab[1]
     
@@ -41,8 +43,8 @@ def main():
         trials_PSD,
         freqs,
         [channel_names.index(ch) for ch in ['C3', 'Cz', 'C4']],
-        chan_lab=['left', 'center', 'right'],
-        maxy=500
+        chan_lab=['left', 'center', 'right']
+        #maxy=500
     )
     
     # PSD epoch bandpass
@@ -57,8 +59,8 @@ def main():
         trials_PSD,
         freqs,
         [channel_names.index(ch) for ch in ['C3', 'Cz', 'C4']],
-        chan_lab=['left', 'center', 'right'],
-        maxy=300
+        chan_lab=['left', 'center', 'right']
+        #maxy=300
     )
     
     # PSD epoch csp
@@ -268,8 +270,11 @@ def get_data3():
     raw = mne.io.read_raw_fif(path + "/data_eeg.fif", preload=True)
     events = mne.read_events(path + "/data-eve.fif")
     events = events[:39]
-    
+
+    trials = {}    
     channel_names = raw.info['ch_names']
+    sample_rate = raw.info['sfreq']
+    cl_lab=['left', 'right']
     
     picks = pick_types(raw.info, meg=False, eeg=True, stim=False, eog=False, exclude='bads')
 
@@ -277,18 +282,37 @@ def get_data3():
     #event_ids = dict(left=2, right=3)  # map event IDs to tasks
     event_id = {'left': 0, 'right': 1}
     
-    #epochs = mne.Epochs(raw, events, event_ids, tmin - 0.5, tmax + 0.5, baseline=None, preload=True)
+    epochs = Epochs(raw, events, event_id, tmin, tmax, proj=True, baseline=None, preload=True)
     
-    epochs = Epochs(raw, events, event_id, tmin, tmax, proj=True,
-                    baseline=None, preload=True)
-    
-    trials = {}
     epochs0=epochs[epochs.events[:,2]==0]
     epochs1=epochs[epochs.events[:,2]==1]
+       
+    trials[cl_lab[0]] = epochs0.get_data(units='uV')
+    trials[cl_lab[1]] = epochs1.get_data(units='uV')
     
+    return trials, sample_rate, cl_lab, channel_names
+
+
+def get_data4(path, filename):
+    #path="../../LSL-BCI/DATA/Experiment_5/Data/T1/"
+    raw = mne.io.read_raw_fif(path + filename + "_eeg.fif", preload=True)
+    events = mne.read_events(path + filename + "-eve.fif")
+
+    trials = {}    
+    channel_names = raw.info['ch_names']
     sample_rate = raw.info['sfreq']
-    
     cl_lab=['left', 'right']
+    
+    picks = pick_types(raw.info, meg=False, eeg=True, stim=False, eog=False, exclude='bads')
+
+    tmin, tmax = 0.5, 2.5
+    #event_ids = dict(left=2, right=3)  # map event IDs to tasks
+    event_id = {'left': 0, 'right': 1}
+    
+    epochs = Epochs(raw, events, event_id, tmin, tmax, proj=True, baseline=None, preload=True)
+    
+    epochs0=epochs[epochs.events[:,2]==0]
+    epochs1=epochs[epochs.events[:,2]==1]
        
     trials[cl_lab[0]] = epochs0.get_data(units='uV')
     trials[cl_lab[1]] = epochs1.get_data(units='uV')
