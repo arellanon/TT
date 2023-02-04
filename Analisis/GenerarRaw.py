@@ -15,7 +15,7 @@ def main():
     # extra dimensions in the arrays. This makes the code a bit more cluttered
     
     path = "data/"
-    filename = "test2"
+    filename = "test3"
     
     sample_rate = m['nfo']['fs'][0][0][0][0]
     EEG = m['cnt'].T
@@ -34,6 +34,9 @@ def main():
     #print("data_cnt: ", data_cnt.shape)
     
     EEG = EEG*0.1
+    EEG = EEG / 1000000
+    
+    print(EEG)
     
     #Se carga los nombre de los caneles
     info = mne.create_info(channel_names, freq, 'eeg')
@@ -50,7 +53,7 @@ def main():
     events[:, 0] = event_onsets.astype(int)
     events[:, 2] = event_codes.astype(int)
     
-    mne.write_events(path + filename + "-eve.fif", events)
+    mne.write_events(path + filename + "-eve.fif", events, overwrite=True)
     
     """
     nclasses = len(cl_lab)
