@@ -15,7 +15,7 @@ def main():
     # extra dimensions in the arrays. This makes the code a bit more cluttered
     
     path = "data/"
-    filename = "test3"
+    filename = "test5"
     
     sample_rate = m['nfo']['fs'][0][0][0][0]
     EEG = m['cnt'].T
@@ -33,7 +33,7 @@ def main():
     #data_cnt=data_cnt.transpose()
     #print("data_cnt: ", data_cnt.shape)
     
-    EEG = EEG*0.1
+    #EEG = EEG*0.1
     EEG = EEG / 1000000
     
     print(EEG)
