@@ -55,6 +55,8 @@ def main():
     
     mne.write_events(path + filename + "-eve.fif", events, overwrite=True)
     
+    
+    
     """
     nclasses = len(cl_lab)
     nevents = len(event_onsets)
