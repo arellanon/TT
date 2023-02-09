@@ -16,8 +16,8 @@ from mne import Epochs, pick_types, events_from_annotations
 def main():
     trials1, info1 = get_epoch("epochs/", "BCICIV_calib_ds1d")
     #trials2, info2 = get_data()
-    trials2, info2 = get_data2()
-    #trials2, info2 = get_epoch("epochs/", "eegbci")
+    #trials2, info2 = get_data2()
+    trials2, info2 = get_epoch("epochs/", "Experiment6")
     #trials2, info2 = get_epoch("epochs/", "Experiment4")
     #info2["channel_names"] = ['C3', 'Cz', 'C4', 'P3', 'Pz', 'P4', 'O1', 'O2']
     
@@ -53,6 +53,29 @@ def calculateML(trials, info):
     W,b = train_lda(train[cl1], train[cl2])
     print('W:', W)
     print('b:', b)
+    
+    
+    # Scatterplot
+    #plot_scatter(trials_logvar[cl1], trials_logvar[cl2], cl_lab)
+    
+    # Scatterplot like before
+    plot_scatter(train[cl1], train[cl2], cl_lab)
+    
+    # Calculate decision boundary (x,y)
+    x = np.arange(-5, 1, 0.1)
+    y = (b - W[0]*x) / W[1]
+    
+    # Plot the decision boundary
+    plt.plot(x, y, linestyle='--', linewidth=2, color='k')
+    #plt.xlim(-5, 1)
+    #plt.ylim(-2.2, 1)
+    
+    plot_scatter(test[cl1], test[cl2], cl_lab)
+    #title('Test data')
+    plt.plot(x,y, linestyle='--', linewidth=2, color='k')
+    #plt.xlim(-5, 1)
+    #plt.ylim(-2.2, 1)
+    
 
     # Print confusion matrix
     conf = np.array([
@@ -248,7 +271,7 @@ def get_data2():
     runs = [3, 7, 11]  #Motor execution: left vs right hand
 
     raw_fnames=[]
-    for subject in range(1, 50):
+    for subject in range(1, 10):
         raw_fnames.extend( eegbci.load_data(subject,runs= runs) )
     
     #fnames = eegbci.load_data(subject=1, runs=runs)
