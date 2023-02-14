@@ -53,8 +53,7 @@ def calculateML(trials, info):
     W,b = train_lda(train[cl1], train[cl2])
     print('W:', W)
     print('b:', b)
-    
-    
+        
     # Scatterplot
     #plot_scatter(trials_logvar[cl1], trials_logvar[cl2], cl_lab)
     
@@ -87,6 +86,7 @@ def calculateML(trials, info):
     print(conf)
     print()
     print('Accuracy: %.3f' % (np.sum(np.diag(conf)) / float(np.sum(conf))))
+    print()
     
 def prepareData(trials_filt, cl_lab):
     train_percentage = 0.8
@@ -212,6 +212,20 @@ def report_psd(trials, info):
         chan_lab=['first component', 'middle component', 'last component'], 
         maxy=0.75 
     )
+    
+    #Logvar
+    trials_logvar = {cl1: logvar(trials_filt[cl1]),
+                     cl2: logvar(trials_filt[cl2])}
+    
+    plot_logvar(trials_logvar, nchannels, cl_lab)
+
+    trials_logvar = {cl1: logvar(trials_csp[cl1]),
+                     cl2: logvar(trials_csp[cl2])}
+    
+    plot_logvar(trials_logvar, nchannels, cl_lab)
+    
+    # Scatterplot
+    plot_scatter(trials_logvar[cl1], trials_logvar[cl2], cl_lab)
 
 
 ### Funciones get_data
