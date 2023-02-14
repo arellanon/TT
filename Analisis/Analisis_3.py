@@ -15,6 +15,7 @@ from mne import Epochs, pick_types, events_from_annotations
 
 def main():
     trials1, info1 = get_epoch("epochs/", "BCICIV_calib_ds1d")
+    #trials1, info1 = get_epoch("epochs/", "Experiment5")
     #trials2, info2 = get_data()
     #trials2, info2 = get_data2()
     trials2, info2 = get_epoch("epochs/", "Experiment6")
@@ -209,8 +210,8 @@ def report_psd(trials, info):
         trials_PSD, 
         freqs, 
         [0, nchannels // 2 ,-1],
-        chan_lab=['first component', 'middle component', 'last component'], 
-        maxy=0.75 
+        chan_lab=['first component', 'middle component', 'last component']
+        #maxy=0.75 
     )
     
     #Logvar
@@ -219,13 +220,13 @@ def report_psd(trials, info):
     
     plot_logvar(trials_logvar, nchannels, cl_lab)
 
-    trials_logvar = {cl1: logvar(trials_csp[cl1]),
+    trials_csp_logvar = {cl1: logvar(trials_csp[cl1]),
                      cl2: logvar(trials_csp[cl2])}
     
-    plot_logvar(trials_logvar, nchannels, cl_lab)
+    plot_logvar(trials_csp_logvar, nchannels, cl_lab)
     
     # Scatterplot
-    plot_scatter(trials_logvar[cl1], trials_logvar[cl2], cl_lab)
+    plot_scatter(trials_csp_logvar[cl1], trials_csp_logvar[cl2], cl_lab)
 
 
 ### Funciones get_data

@@ -263,6 +263,7 @@ def plot_logvar(trials, nchannels, cl_lab):
     plt.title('log-var of each channel/component')
     plt.xlabel('channels/components')
     plt.ylabel('log-var')
+    plt.title("Barras")
     plt.legend(cl_lab)
 
 def cov(trials):
