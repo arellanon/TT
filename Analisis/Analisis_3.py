@@ -18,7 +18,7 @@ def main():
     #trials1, info1 = get_epoch("epochs/", "Experiment5")
     #trials2, info2 = get_data()
     #trials2, info2 = get_data2()
-    trials2, info2 = get_epoch("epochs/", "Experiment6")
+    trials2, info2 = get_epoch("epochs/", "Experiment6v4")
     #trials2, info2 = get_epoch("epochs/", "Experiment4")
     #info2["channel_names"] = ['C3', 'Cz', 'C4', 'P3', 'Pz', 'P4', 'O1', 'O2']
     
