@@ -37,6 +37,8 @@ def main():
     EEG = EEG / 1000000
     
     print(EEG)
+    print("EEG: ", EEG.shape)
+    print("channel_names: ", channel_names)
     
     #Se carga los nombre de los caneles
     info = mne.create_info(channel_names, freq, 'eeg')

@@ -15,125 +15,37 @@ from mne import Epochs, pick_types, events_from_annotations
 
 def main():
     trials1, info1 = get_epoch("epochs/", "BCICIV_calib_ds1d")
+    print("trials1: ", trials1['left'].shape )
+    print("info1: ", type(info1["channel_names"]) )
+    
+    trials2, info2 = get_data5("data/VICPER/", "S10")
+    
+    print("trials2: ", trials2['left'].shape )
+    print("trials2: ", trials2['right'].shape )
+    print("info2: ", type(info2["channel_names"]) )
+    
+    #print(trials1['left'][0])
+    
     #trials1, info1 = get_epoch("epochs/", "Experiment5")
     #trials2, info2 = get_data()
     #trials2, info2 = get_data2()
-    trials2, info2 = get_epoch("epochs/", "Experiment6v4")
+    #trials2, info2 = get_epoch("epochs/", "Experiment6v4")
+    #trials2, info2 = get_epoch("epochs/", "Experiment7v1")
     #trials2, info2 = get_epoch("epochs/", "Experiment4")
     #info2["channel_names"] = ['C3', 'Cz', 'C4', 'P3', 'Pz', 'P4', 'O1', 'O2']
     
-    show_info(trials1, info1)
-    report_psd(trials1, info1)
-    calculateML(trials1, info1)
+    #show_info(trials1, info1)
+    #report_psd(trials1, info1)
+    #calculateML(trials1, info1)
     #print(trials1)
     
+
     show_info(trials2, info2)
     report_psd(trials2, info2)
     calculateML(trials2, info2)
     #print(trials2)
-    
-def calculateML(trials, info):
-    sample_rate = info['sample_rate']
-    cl_lab = info['cl_lab'] 
-    channel_names = info['channel_names']
-    
-    cl1 = cl_lab[0]
-    cl2 = cl_lab[1]
-    
-    ntrials = trials[cl1].shape[0]
-    nchannels = trials[cl1].shape[1]
-    nsamples = trials[cl1].shape[2]
-    nchannels = len(channel_names)
-    
-    # PSD epoch bandpass
-    trials_filt = {cl1: bandpass(trials[cl1], 8, 15, sample_rate),
-                   cl2: bandpass(trials[cl2], 8, 15, sample_rate)}
-    
-    train, test = prepareData(trials_filt, cl_lab)
-    
-    W,b = train_lda(train[cl1], train[cl2])
-    print('W:', W)
-    print('b:', b)
-        
-    # Scatterplot
-    #plot_scatter(trials_logvar[cl1], trials_logvar[cl2], cl_lab)
-    
-    # Scatterplot like before
-    plot_scatter(train[cl1], train[cl2], cl_lab)
-    
-    # Calculate decision boundary (x,y)
-    x = np.arange(-5, 1, 0.1)
-    y = (b - W[0]*x) / W[1]
-    
-    # Plot the decision boundary
-    plt.plot(x, y, linestyle='--', linewidth=2, color='k')
-    #plt.xlim(-5, 1)
-    #plt.ylim(-2.2, 1)
-    
-    plot_scatter(test[cl1], test[cl2], cl_lab)
-    #title('Test data')
-    plt.plot(x,y, linestyle='--', linewidth=2, color='k')
-    #plt.xlim(-5, 1)
-    #plt.ylim(-2.2, 1)
-    
 
-    # Print confusion matrix
-    conf = np.array([
-        [(apply_lda(test[cl1].T, W, b) == 1).sum(), (apply_lda(test[cl2].T, W, b) == 1).sum()],
-        [(apply_lda(test[cl1].T, W, b) == 2).sum(), (apply_lda(test[cl2].T, W, b) == 2).sum()],
-    ])
     
-    print('Confusion matrix:')
-    print(conf)
-    print()
-    print('Accuracy: %.3f' % (np.sum(np.diag(conf)) / float(np.sum(conf))))
-    print()
-    
-def prepareData(trials_filt, cl_lab):
-    train_percentage = 0.8
-    cl1=cl_lab[0]
-    cl2=cl_lab[1]
-    
-    # Calculate the number of trials for each class the above percentage boils down to
-    ntrain_l = int(trials_filt[cl1].shape[0] * train_percentage)
-    ntrain_r = int(trials_filt[cl2].shape[0] * train_percentage)
-    ntest_l = trials_filt[cl1].shape[0] - ntrain_l
-    ntest_r = trials_filt[cl2].shape[0] - ntrain_r
-    
-    
-    # Splitting the frequency filtered signal into a train and test set
-    train = {cl1: trials_filt[cl1][:ntrain_l,:,:],
-             cl2: trials_filt[cl2][:ntrain_r,:,:]}
-    
-    test = {cl1: trials_filt[cl1][ntrain_l:,:,:],
-            cl2: trials_filt[cl2][ntrain_r:,:,:]}
-    
-    # Train the CSP on the training set only
-    W = csp(train[cl1], train[cl2])
-    
-    # Apply the CSP on both the training and test set
-    train[cl1] = apply_mix(W, train[cl1])
-    train[cl2] = apply_mix(W, train[cl2])
-    test[cl1] = apply_mix(W, test[cl1])
-    test[cl2] = apply_mix(W, test[cl2])
-    
-    # Select only the first and last components for classification
-    comp = np.array([0,-1])
-    train[cl1] = train[cl1][:,comp,:]
-    train[cl2] = train[cl2][:,comp,:]
-    test[cl1] = test[cl1][:,comp,:]
-    test[cl2] = test[cl2][:,comp,:]
-    
-    # Calculate the log-var
-    train[cl1] = logvar(train[cl1])
-    train[cl2] = logvar(train[cl2])
-    test[cl1] = logvar(test[cl1])
-    test[cl2] = logvar(test[cl2])
-    
-    return train, test
-    
-## Funciones reporte
-
 def show_info(trials, info):
     sample_rate = info['sample_rate']
     cl_lab = info['cl_lab'] 
@@ -154,6 +66,7 @@ def show_info(trials, info):
     print('Shape ', cl1,' :', trials[cl1].shape)
     print('Shape ', cl2,' :', trials[cl2].shape)
 
+## Funciones reporte    
 def report_psd(trials, info):
     sample_rate = info['sample_rate']
     cl_lab = info['cl_lab'] 
@@ -226,8 +139,113 @@ def report_psd(trials, info):
     plot_logvar(trials_csp_logvar, nchannels, cl_lab)
     
     # Scatterplot
-    plot_scatter(trials_csp_logvar[cl1], trials_csp_logvar[cl2], cl_lab)
+    plot_scatter(trials_csp_logvar[cl1], trials_csp_logvar[cl2], cl_lab)    
+    
+def calculateML(trials, info):
+    sample_rate = info['sample_rate']
+    cl_lab = info['cl_lab'] 
+    channel_names = info['channel_names']
+    
+    cl1 = cl_lab[0]
+    cl2 = cl_lab[1]
+    
+    ntrials = trials[cl1].shape[0]
+    nchannels = trials[cl1].shape[1]
+    nsamples = trials[cl1].shape[2]
+    nchannels = len(channel_names)
+    
+    # PSD epoch bandpass
+    trials_filt = {cl1: bandpass(trials[cl1], 8, 15, sample_rate),
+                   cl2: bandpass(trials[cl2], 8, 15, sample_rate)}
+    
+    train, test = prepareData(trials_filt, cl_lab)
+    
+    #print("train: ", train['left']) 
+    #print("test: ", test['left'].shape) 
+    
+    W,b = train_lda(train[cl1], train[cl2])
+    print('W:', W)
+    print('b:', b)
+        
+    # Scatterplot
+    #plot_scatter(trials_logvar[cl1], trials_logvar[cl2], cl_lab)
+    
+    # Scatterplot like before
+    plot_scatter(train[cl1], train[cl2], cl_lab)
+    
+    # Calculate decision boundary (x,y)
+    x = np.arange(-5, 1, 0.1)
+    y = (b - W[0]*x) / W[1]
+    
+    # Plot the decision boundary
+    plt.plot(x, y, linestyle='--', linewidth=2, color='k')
+    #plt.xlim(-5, 1)
+    #plt.ylim(-2.2, 1)
+    
+    plot_scatter(test[cl1], test[cl2], cl_lab)
+    #title('Test data')
+    plt.plot(x,y, linestyle='--', linewidth=2, color='k')
+    #plt.xlim(-5, 1)
+    #plt.ylim(-2.2, 1)
+    
 
+    # Print confusion matrix
+    conf = np.array([
+        [(apply_lda(test[cl1].T, W, b) == 1).sum(), (apply_lda(test[cl2].T, W, b) == 1).sum()],
+        [(apply_lda(test[cl1].T, W, b) == 2).sum(), (apply_lda(test[cl2].T, W, b) == 2).sum()],
+    ])
+    
+    print('Confusion matrix:')
+    print(conf)
+    print()
+    print('Accuracy: %.3f' % (np.sum(np.diag(conf)) / float(np.sum(conf))))
+    print()
+    
+def prepareData(trials_filt, cl_lab):
+    train_percentage = 0.8
+    cl1=cl_lab[0]
+    cl2=cl_lab[1]
+    
+    # Calculate the number of trials for each class the above percentage boils down to
+    ntrain_l = int(trials_filt[cl1].shape[0] * train_percentage)
+    ntrain_r = int(trials_filt[cl2].shape[0] * train_percentage)
+    ntest_l = trials_filt[cl1].shape[0] - ntrain_l
+    ntest_r = trials_filt[cl2].shape[0] - ntrain_r
+    
+    
+    # Splitting the frequency filtered signal into a train and test set
+    train = {cl1: trials_filt[cl1][:ntrain_l,:,:],
+             cl2: trials_filt[cl2][:ntrain_r,:,:]}
+    
+    test = {cl1: trials_filt[cl1][ntrain_l:,:,:],
+            cl2: trials_filt[cl2][ntrain_r:,:,:]}
+    
+    # Train the CSP on the training set only
+    W = csp(train[cl1], train[cl2])
+    
+    print("W:", W.shape)
+    
+    # Apply the CSP on both the training and test set
+    train[cl1] = apply_mix(W, train[cl1])
+    train[cl2] = apply_mix(W, train[cl2])
+    test[cl1] = apply_mix(W, test[cl1])
+    test[cl2] = apply_mix(W, test[cl2])
+    
+    # Select only the first and last components for classification
+    comp = np.array([0,-1])
+    train[cl1] = train[cl1][:,comp,:]
+    train[cl2] = train[cl2][:,comp,:]
+    test[cl1] = test[cl1][:,comp,:]
+    test[cl2] = test[cl2][:,comp,:]
+    
+    # Calculate the log-var
+    train[cl1] = logvar(train[cl1])
+    train[cl2] = logvar(train[cl2])
+    test[cl1] = logvar(test[cl1])
+    test[cl2] = logvar(test[cl2])
+    
+    return train, test
+    
 
 ### Funciones get_data
 
@@ -392,6 +410,40 @@ def get_data4(path, filename):
     info['channel_names'] = channel_names
     return trials, info
 
+def get_data5(path, filename):
+    #path="../../LSL-BCI/DATA/Experiment_5/Data/T1/"
+    mat = scipy.io.loadmat(path + filename + ".mat")
+    data  = mat[filename][0][0][0][0][0]
+    events_2d = mat[filename][0][0][0][0][1]
+
+    events = np.squeeze(events_2d)
+    print(events)
+    valor = events[:]==1
+    print(valor[0])
+    #print(data)
+    #print(data.shape)
+    #print(event.shape)
+    #reshape = ( 150, 15, 501)
+    epochs = data.reshape(160, 15, 501)
+    print(epochs.shape)
+    
+    trials = {}
+    info = {}
+    channel_names = ['Pz', 'Cz', 'T6', 'T4', 'F8', 'P4', 'C4', 'F4', 'Fz', 'T5', 'T3', 'F7', 'P3', 'C3', 'F3']
+    sample_rate = 125
+    cl_lab=['left', 'right']
+    
+    epochs0=epochs[events[:]==1]
+    epochs1=epochs[events[:]==2]
+       
+    trials[cl_lab[0]] = epochs0
+    trials[cl_lab[1]] = epochs1
+    
+    info['sample_rate'] = sample_rate
+    info['cl_lab'] = cl_lab
+    info['channel_names'] = channel_names
+    return trials, info
+
 def get_epoch(path, filename):
     #event_id = {'left': 0, 'right': 1}
     #raw = mne.io.read_raw_fif(path + filename + "_eeg.fif", preload=True)
@@ -406,13 +458,17 @@ def get_epoch(path, filename):
     
     epochs0=epochs[epochs.events[:,2]==0]
     epochs1=epochs[epochs.events[:,2]==1]
-       
-    trials[cl_lab[0]] = epochs0.get_data(units='uV')
-    trials[cl_lab[1]] = epochs1.get_data(units='uV')
+    
+    list_channel=['C3', 'Cz', 'C4', 'P3', 'Pz', 'P4', 'O1', 'O2']
+    
+    trials[cl_lab[0]] = epochs0.get_data(units='uV', picks=list_channel)
+    trials[cl_lab[1]] = epochs1.get_data(units='uV', picks=list_channel)
     
     info['sample_rate'] = sample_rate
     info['cl_lab'] = cl_lab
-    info['channel_names'] = channel_names
+    #info['channel_names'] = channel_names
+    info['channel_names'] = list_channel
+    
     return trials, info
 
 if __name__ == "__main__":

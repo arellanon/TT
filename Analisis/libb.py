@@ -164,7 +164,7 @@ def plot_psd(trials_PSD, freqs, chan_ind, chan_lab=None, maxy=None):
     
         # Plot the PSD for each class
         for cl in trials_PSD.keys():
-            plt.plot(freqs, np.mean(trials_PSD[cl][:,ch,:], axis=0), label=cl)
+            plt.plot(freqs, np.mean(trials_PSD[cl][:,ch,:], axis=0), label=cl) 
     
         # All plot decoration below...
         
@@ -254,8 +254,8 @@ def plot_logvar(trials, nchannels, cl_lab):
     y0 = np.mean(trials[cl_lab[0]], axis=0)
     y1 = np.mean(trials[cl_lab[1]], axis=0)
 
-    plt.bar(x0, y0, width=0.5, color='b')
-    plt.bar(x1, y1, width=0.4, color='r')
+    plt.bar(x0, y0, width=0.5, color='r')
+    plt.bar(x1, y1, width=0.4, color='b')
 
     plt.xlim(-0.5, nchannels+0.5)
 
@@ -282,8 +282,8 @@ def csp(trials_r, trials_f):
     '''
     Calculate the CSP transformation matrix W.
     arguments:
-        trials_r - Array (channels x samples x trials) containing right hand movement trials
-        trials_f - Array (channels x samples x trials) containing foot movement trials
+        trials_l - Array (channels x samples x trials) containing left hand movement trials
+        trials_r - Array (channels x samples x trials) containing rigth hand movement trials
     returns:
         Mixing matrix W
     '''
@@ -306,12 +306,11 @@ def apply_mix(W, trials):
 
 def plot_scatter(left, foot, cl_lab):
     plt.figure()
-    plt.scatter(left[:,0], left[:,-1], color='b')
-    plt.scatter(foot[:,0], foot[:,-1], color='r')
+    plt.scatter(left[:,0], left[:,-1], color='r')
+    plt.scatter(foot[:,0], foot[:,-1], color='b')
     plt.xlabel('Last component')
     plt.ylabel('First component')
     plt.legend(cl_lab)
-    
     
 def train_lda(class1, class2):
     '''
