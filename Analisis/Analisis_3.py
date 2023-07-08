@@ -41,7 +41,7 @@ def main():
     
 
     show_info(trials2, info2)
-    report_psd(trials2, info2)
+    #report_psd(trials2, info2)
     calculateML(trials2, info2)
     #print(trials2)
 
@@ -424,7 +424,8 @@ def get_data5(path, filename):
     #print(data.shape)
     #print(event.shape)
     #reshape = ( 150, 15, 501)
-    epochs = data.reshape(160, 15, 501)
+    #epochs = data.reshape(160, 15, 501)
+    epochs = np.transpose(data)
     print(epochs.shape)
     
     trials = {}
