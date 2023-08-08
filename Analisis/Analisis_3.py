@@ -14,11 +14,11 @@ from mne.datasets import eegbci
 from mne import Epochs, pick_types, events_from_annotations
 
 def main():
-    trials1, info1 = get_epoch("epochs/", "BCICIV_calib_ds1d")
-    print("trials1: ", trials1['left'].shape )
-    print("info1: ", type(info1["channel_names"]) )
+    #trials1, info1 = get_epoch("epochs/", "BCICIV_calib_ds1d")
+    #print("trials1: ", trials1['left'].shape )
+    #print("info1: ", type(info1["channel_names"]) )
     
-    trials2, info2 = get_data5("data/VICPER/", "S10")
+    trials2, info2 = get_data5("data/VICPER/", "S01")
     
     print("trials2: ", trials2['left'].shape )
     print("trials2: ", trials2['right'].shape )
